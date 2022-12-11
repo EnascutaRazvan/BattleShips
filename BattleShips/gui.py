@@ -81,7 +81,7 @@ while working:
         # user mouse click
         if event.type == pygame.MOUSEBUTTONDOWN and not pause:
             x, y = pygame.mouse.get_pos()
-            print(x,y)
+            
             if game.player_turn1 and x < SIZE_SQUARE * 10 and y < SIZE_SQUARE * 10:
                 row = y // SIZE_SQUARE
                 col = x // SIZE_SQUARE
