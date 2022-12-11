@@ -28,16 +28,25 @@ SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 GREY = (40, 50, 60)
 WHITE = (255, 255, 255)
 GREEN = (50, 200, 150)
+RED = (250, 50, 100)
+BLUE = (50, 150, 200)
+ORANGE = (250, 140, 20)
+
+COLORS_FOR_SEARCH = {"U": GREY, "M": BLUE, "H": ORANGE, "S": RED}
 
 
 # function to draw a grid
 
-def draw_grid(left=0, top=0):
+def draw_grid(player, left=0, top=0, search=False):
     for i in range(0, 100):
         x = left + i % 10 * SIZE_SQUARE
         y = top + math.floor(i / 10) * SIZE_SQUARE
         square = pygame.Rect(x, y, SIZE_SQUARE, SIZE_SQUARE)
         pygame.draw.rect(SCREEN, WHITE, square, width=2)
+        if search:
+            x += SIZE_SQUARE // 2
+            y += SIZE_SQUARE // 2
+            pygame.draw.circle(SCREEN, COLORS_FOR_SEARCH[player.search[i]], (x, y), radius=SIZE_SQUARE // 4)
 
 
 # function to draw the ships onto the grid
@@ -47,7 +56,7 @@ def draw_ships(player, left=0, top=0):
         y = top + ship.row * SIZE_SQUARE + BEAUTIFIER_INDENT
 
         if ship.orientation == "h":
-            width = ship.size * SIZE_SQUARE - 2*BEAUTIFIER_INDENT
+            width = ship.size * SIZE_SQUARE - 2 * BEAUTIFIER_INDENT
             height = SIZE_SQUARE - 2 * BEAUTIFIER_INDENT
         else:
             width = SIZE_SQUARE - 2 * BEAUTIFIER_INDENT
@@ -56,8 +65,7 @@ def draw_ships(player, left=0, top=0):
         pygame.draw.rect(SCREEN, GREEN, rect, border_radius=15)
 
 
-player1 = Player()
-player2 = Player()
+game = Game()
 
 # pygame loop
 working = True
@@ -70,6 +78,31 @@ while working:
         # close the window
         if event.type == pygame.QUIT:
             working = False
+        # user mouse click
+        if event.type == pygame.MOUSEBUTTONDOWN and not pause:
+            x, y = pygame.mouse.get_pos()
+            print(x,y)
+            if game.player_turn1 and x < SIZE_SQUARE * 10 and y < SIZE_SQUARE * 10:
+                row = y // SIZE_SQUARE
+                col = x // SIZE_SQUARE
+
+                i = row * 10 + col
+                if game.player1.search[i] == "U":
+                    game.make_move(i)
+                    if game.winner != "":
+                        print(f"The winner is {game.winner}")
+                        working = False
+
+            if game.player_turn2 and x > WIDTH - SIZE_SQUARE * 10 and y > SIZE_SQUARE * 10 + VERTICAL_M:
+                row = (y - SIZE_SQUARE*10 - VERTICAL_M) // SIZE_SQUARE
+                col = (x - SIZE_SQUARE * 10 - HORIZONTAL_M) // SIZE_SQUARE
+                i = row * 10 + col
+                if game.player2.search[i] == "U":
+                    game.make_move(i)
+                    if game.winner != "":
+                        print(f"The winner is {game.winner}")
+                        working = False
+
 
         # check the keys that user pressed down
         if event.type == pygame.KEYDOWN:
@@ -88,15 +121,16 @@ while working:
         SCREEN.fill(GREY)
 
         #   draw the search grids
-        draw_grid()
-        draw_grid(left=(WIDTH - HORIZONTAL_M) // 2 + HORIZONTAL_M, top=0)
+        draw_grid(player=game.player1, search=True)
+        draw_grid(player=game.player2, left=(WIDTH - HORIZONTAL_M) // 2 + HORIZONTAL_M,
+                  top=(HEIGHT - VERTICAL_M) // 2 + VERTICAL_M, search= True)
 
         # draw the position grids
-        draw_grid(left=0, top=(HEIGHT - VERTICAL_M) // 2 + VERTICAL_M)
-        draw_grid(left=(WIDTH - HORIZONTAL_M) // 2 + HORIZONTAL_M, top=(HEIGHT - VERTICAL_M) // 2 + VERTICAL_M)
+        draw_grid(player=game.player1, left=0, top=(HEIGHT - VERTICAL_M) // 2 + VERTICAL_M)
+        draw_grid(player=game.player2, left=(WIDTH - HORIZONTAL_M) // 2 + HORIZONTAL_M)
 
         # draw the ships
-        draw_ships(player, left=(WIDTH - HORIZONTAL_M) // 2 + HORIZONTAL_M, top=0)
-        draw_ships(player2,top=(HEIGHT - VERTICAL_M) // 2 + VERTICAL_M)
+        draw_ships(game.player1, left=(WIDTH - HORIZONTAL_M) // 2 + HORIZONTAL_M, top=0)
+        draw_ships(game.player2, top=(HEIGHT - VERTICAL_M) // 2 + VERTICAL_M)
         # update the screen
         pygame.display.flip()
