@@ -117,7 +117,10 @@ class Game:
 
     def make_move(self, i):
         player = self.player1 if self.player_turn1 else self.player2
-        opponent = self.player2 if not self.player_turn1 else self.player1
+        opponent = self.player2 if self.player_turn1 else self.player1
+
+        print(player.name)
+        print(opponent.name)
 
         if i in opponent.indexes:
             player.search[i] = "H"
