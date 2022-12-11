@@ -1,7 +1,18 @@
 import numpy as np
 
-number_of_rows = int(input("Enter the number of rows: "))
-number_of_cols = int(input("Enter the number of cols: "))
+correct_input = False
+
+while not correct_input:
+    number_of_rows = int(input("Enter the number of rows: "))
+    if number_of_rows > 0:
+        correct_input = True
+
+correct_input = False
+while not correct_input:
+    number_of_cols = int(input("Enter the number of cols: "))
+    if number_of_cols > 0:
+        correct_input = True
+
 size_of_ship = int(input("Enter the size of ship: "))
 
 A = np.zeros((number_of_rows, number_of_cols), dtype=np.int32)
@@ -28,7 +39,7 @@ def check_attacked_position(player_board_hidden, row, col):
         return False
 
 
-def attack(player_board_hidden, player_board):
+def attack(player_board_hidden, player_board, player):
     correct_attack = False
     while not correct_attack:
         move = input("Attack: ").split(' ')
@@ -54,7 +65,6 @@ def attack(player_board_hidden, player_board):
             correct_attack = False
 
 
-
 def check_if_ship_is_sunk(player_board_hidden, player_board, player):
     parts_of_ship = 0
     for row in range(0, number_of_rows):
@@ -78,7 +88,7 @@ while not winner:
             set_start_positions(player_board=A)
             firstA = False
         else:
-            attack(player_board_hidden=B_hidden, player_board=B)
+            attack(player_board_hidden=B_hidden, player_board=B, player="A")
             print(B_hidden, "\n")
             winner = check_if_ship_is_sunk(player_board_hidden=B_hidden, player_board=B, player="A")
     turn_playerA = False
@@ -89,7 +99,7 @@ while not winner:
             set_start_positions(player_board=B)
             firstB = False
         else:
-            attack(player_board_hidden=A_hidden, player_board=A)
+            attack(player_board_hidden=A_hidden, player_board=A, player="B")
             print(A_hidden, "\n")
             winner = check_if_ship_is_sunk(player_board_hidden=A_hidden, player_board=A, player="B")
 

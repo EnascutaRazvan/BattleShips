@@ -70,6 +70,7 @@ game = Game()
 # pygame loop
 working = True
 pause = False
+winner = False
 while working:
 
     # iterate through events
@@ -81,7 +82,6 @@ while working:
         # user mouse click
         if event.type == pygame.MOUSEBUTTONDOWN and not pause:
             x, y = pygame.mouse.get_pos()
-            
             if game.player_turn1 and x < SIZE_SQUARE * 10 and y < SIZE_SQUARE * 10:
                 row = y // SIZE_SQUARE
                 col = x // SIZE_SQUARE
@@ -91,7 +91,7 @@ while working:
                     game.make_move(i)
                     if game.winner != "":
                         print(f"The winner is {game.winner}")
-                        working = False
+                        winner = True
 
             if game.player_turn2 and x > WIDTH - SIZE_SQUARE * 10 and y > SIZE_SQUARE * 10 + VERTICAL_M:
                 row = (y - SIZE_SQUARE*10 - VERTICAL_M) // SIZE_SQUARE
@@ -101,6 +101,7 @@ while working:
                     game.make_move(i)
                     if game.winner != "":
                         print(f"The winner is {game.winner}")
+                        winner = True
                         working = False
 
 
@@ -130,7 +131,31 @@ while working:
         draw_grid(player=game.player2, left=(WIDTH - HORIZONTAL_M) // 2 + HORIZONTAL_M)
 
         # draw the ships
-        draw_ships(game.player1, left=(WIDTH - HORIZONTAL_M) // 2 + HORIZONTAL_M, top=0)
-        draw_ships(game.player2, top=(HEIGHT - VERTICAL_M) // 2 + VERTICAL_M)
+        draw_ships(game.player1, left=0, top=(HEIGHT - VERTICAL_M) // 2 + VERTICAL_M)
+        draw_ships(game.player2, left=(WIDTH - HORIZONTAL_M) // 2 + HORIZONTAL_M, top = 0)
+
+        font = pygame.font.Font('freesansbold.ttf', 32)
+        text1 = font.render('Player 1', True, RED, GREY)
+        text2 = font.render('Player 2', True, RED, GREY)
+        textRect1 = text1.get_rect()
+        textRect2 = text2.get_rect()
+        textRect1.center = ((WIDTH-SIZE_SQUARE*10-HORIZONTAL_M)//2, HEIGHT//2)
+        textRect2.center = ((SIZE_SQUARE*10 + HORIZONTAL_M + (SIZE_SQUARE*10)//2) , (HEIGHT // 2))
+        SCREEN.blit(text1, textRect1)
+        SCREEN.blit(text2, textRect2)
+
         # update the screen
         pygame.display.flip()
+        if winner:
+            pause = True
+
+    if winner:
+        SCREEN.fill(GREY)
+        font = pygame.font.Font('freesansbold.ttf', 32)
+        text1 = font.render(f'{game.winner} wins', True, RED, GREY)
+        textRect1 = text1.get_rect()
+        textRect1.center = (WIDTH // 2, HEIGHT // 2)
+        SCREEN.blit(text1, textRect1)
+
+        pygame.display.flip()
+
